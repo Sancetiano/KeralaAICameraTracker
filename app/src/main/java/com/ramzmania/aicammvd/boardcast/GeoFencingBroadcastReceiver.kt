@@ -8,13 +8,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.compose.ui.text.toUpperCase
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.ramzmania.aicammvd.R
 import com.ramzmania.aicammvd.geofencing.playNotificationSound
+import com.ramzmania.aicammvd.geofencing.speak
 import com.ramzmania.aicammvd.ui.screens.mapview.OsmMapActivity
 import com.ramzmania.aicammvd.utils.Constants
 import com.ramzmania.aicammvd.utils.Constants.GEOFENCE_PENDING_INTENT_ID
@@ -34,121 +34,106 @@ class GeoFencingBroadcastReceiver : BroadcastReceiver() {
      * @param intent The intent containing the geofence event.
      */
     override fun onReceive(context: Context?, intent: Intent?) {
-        Logger.d("GeofenceBroadcastReceiver - Geofence triggered: ID = before 0000")
+        if (context == null || intent == null) return
+        
+        Logger.d("GeofenceBroadcastReceiver - Geofence triggered")
 
-        val geofencingEvent = GeofencingEvent.fromIntent(intent!!)
-        if (geofencingEvent?.hasError()!!) {
+        val geofencingEvent = GeofencingEvent.fromIntent(intent)
+        if (geofencingEvent == null || geofencingEvent.hasError()) {
             return
         }
-        val extras = intent.extras
+        
         val location = geofencingEvent.triggeringLocation
         val triggeringGeofences = geofencingEvent.triggeringGeofences
 
-        // Extract the unique ID from each geofence
-        Logger.d("GeofenceBroadcastReceiver - Geofence triggered: ID = before 1111")
-        var triggeredLocation="Some camera location"
-
-        if(triggeringGeofences!=null) {
+        if (triggeringGeofences != null) {
             for (geofence in triggeringGeofences) {
-//                Log.d("GeofenceBroadcastReceiver", "Geofence triggered: ID = before")
+                val requestId = geofence.requestId
+                // RequestId is formatted as "location_name_distance"
+                val lastUnderscoreIndex = requestId.lastIndexOf("_")
+                val triggeredLocationName = if (lastUnderscoreIndex != -1) {
+                    requestId.substring(0, lastUnderscoreIndex).replace("*", " ").uppercase(Locale.getDefault())
+                } else {
+                    requestId.replace("*", " ").uppercase(Locale.getDefault())
+                }
+                
+                val distanceStr = if (lastUnderscoreIndex != -1) requestId.substring(lastUnderscoreIndex + 1) else ""
 
-                triggeredLocation= geofence.requestId
-//                Log.d("GeofenceBroadcastReceiver", "Geofence triggered: ID = $geofenceId")
+                when (geofencingEvent.geofenceTransition) {
+                    Geofence.GEOFENCE_TRANSITION_ENTER -> {
+                        if (PreferencesUtil.isTrackerRunning(context)) {
+                            handleEnterTransition(context, triggeredLocationName, distanceStr, location)
+                        }
+                    }
 
-                // Handle the geofence event as needed
-                // For example, you can notify the user or update the UI
-            }
-        }
-        Logger.d("GeofenceBroadcastReceiver - Geofence triggered: ID = before 22222")
-
-//        val somevalue= geofencingEvent.triggeringGeofences?.get(0)?.requestId
-        when (geofencingEvent.geofenceTransition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                if(PreferencesUtil.isTrackerRunning(context!!)) {
-                    if (extras != null) {
-                        showNotification(
-                            context!!,
-                            "ENTERING AI ZONE",
-                            "${
-                                triggeredLocation.replace("*", " ").uppercase(Locale.getDefault())
-                            } Camera Zone", location
-                        )
+                    Geofence.GEOFENCE_TRANSITION_EXIT -> {
+                        if (PreferencesUtil.isTrackerRunning(context)) {
+                            // baseId is used to identify the camera regardless of the geofence circle distance
+                            val baseId = requestId.substring(0, if (lastUnderscoreIndex != -1) lastUnderscoreIndex else requestId.length)
+                            if (!PreferencesUtil.isAlreadyNotified(context, baseId)) {
+                                handleExitTransition(context, triggeredLocationName, location)
+                                PreferencesUtil.setLastPassedCamera(context, baseId)
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
 
-            Geofence.GEOFENCE_TRANSITION_EXIT -> {
-                if(PreferencesUtil.isTrackerRunning(context!!)) {
-                    if (extras != null)
-                        showNotification(
-                            context!!,
-                            "EXITING AI ZONE",
-                            "${
-                                triggeredLocation.replace("*", " ").uppercase(Locale.getDefault())
-                            } Camera Zone", location
-                        )
-                }
-            }
+    private fun handleEnterTransition(context: Context, locationName: String, distance: String, location: Location?) {
+        val title = "AI CAMERA AHEAD"
+        val message = "$locationName Camera within $distance meters"
+        
+        showNotification(context, title, message, location)
+        
+        val alertType = PreferencesUtil.getString(context, Constants.PREF_ALERT_TYPE) ?: "sound"
+        if (alertType == "voice") {
+            speak(context, "AI Camera is within $distance meters")
+        } else {
+            playNotificationSound(context, R.raw.notification_sound)
+        }
+    }
 
-            else -> {
-                Logger.e(
-                    "GeofenceReceiver - Unknown transition type: ${geofencingEvent.geofenceTransition}"
-                )
+    private fun handleExitTransition(context: Context, locationName: String, location: Location?) {
+        val shouldNotifyExit = PreferencesUtil.getBoolean(context, Constants.PREF_POST_PASS_NOTIFY, true)
+        
+        if (shouldNotifyExit) {
+            val speedKmph = location?.speed?.let { it * 3.6 }?.let { String.format(Locale.getDefault(), "%.1f", it) } ?: "unknown"
+            val title = "CAMERA PASSED"
+            val message = "You just passed $locationName AI camera. Your speed was $speedKmph kmph."
+            
+            showNotification(context, title, message, location)
+            
+            val alertType = PreferencesUtil.getString(context, Constants.PREF_ALERT_TYPE) ?: "sound"
+            if (alertType == "voice") {
+                speak(context, "You just passed $locationName camera and your speed was $speedKmph kilometers per hour")
             }
         }
     }
-    /**
-     * Displays a notification for entering or exiting a geofence zone.
-     *
-     * @param context The application context.
-     * @param title The title of the notification.
-     * @param message The message of the notification.
-     * @param location The triggering location.
-     */
-    private fun showNotification(context: Context, title: String, message: String,location: Location?) {
-        NotificationUtil.createNotificationChannel(context,Constants.CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH)
 
-        val intent = Intent(context, OsmMapActivity::class.java)
-        if(location!=null)
-        {
-            intent.putExtra("lat", location.latitude)
-            intent.putExtra("long", location.longitude)
-        }else
-        {
-            intent.putExtra("lat", 0.0)
-            intent.putExtra("long",0.0)
+    private fun showNotification(context: Context, title: String, message: String, location: Location?) {
+        NotificationUtil.createNotificationChannel(context, Constants.CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH)
+
+        val intent = Intent(context, OsmMapActivity::class.java).apply {
+            putExtra("lat", location?.latitude ?: 0.0)
+            putExtra("long", location?.longitude ?: 0.0)
+            putExtra(Constants.INTENT_FROM_GEO, "geofence")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        intent.putExtra(Constants.INTENT_FROM_GEO,"geofence")
-
-        // Add any extras you want to pass
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,  // Request code
+            System.currentTimeMillis().toInt(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            NotificationUtil.showNotification(context,title,message,pendingIntent,R.drawable.ai_camera_marker,NotificationCompat.PRIORITY_DEFAULT,GEOFENCE_PENDING_INTENT_ID,
-                Constants.CHANNEL_ID,true)
-            playNotificationSound(context, R.raw.notification_sound)
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+            NotificationUtil.showNotification(
+                context, title, message, pendingIntent, R.drawable.ai_camera_marker,
+                NotificationCompat.PRIORITY_HIGH, GEOFENCE_PENDING_INTENT_ID, Constants.CHANNEL_ID, true
+            )
         }
-
-        try{
-            PreferencesUtil.setTrackerRunning(context, true)
-        }catch (ex:Exception)
-        {
-
-        }
-
     }
-
-
-
 }

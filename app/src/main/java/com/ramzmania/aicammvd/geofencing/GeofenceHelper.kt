@@ -12,6 +12,7 @@ import android.location.Location
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.speech.tts.TextToSpeech
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
@@ -19,6 +20,7 @@ import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
 import com.ramzmania.aicammvd.boardcast.GeoFencingBroadcastReceiver
 import com.ramzmania.aicammvd.data.dto.cameralist.CameraData
+import com.ramzmania.aicammvd.utils.Constants
 import com.ramzmania.aicammvd.utils.LocationSharedFlow
 import com.ramzmania.aicammvd.utils.Logger
 import com.ramzmania.aicammvd.utils.PreferencesUtil
@@ -32,23 +34,33 @@ import java.util.Locale
  * @param cameraDataList The list of camera data to create geofences from.
  * @return The list of Geofence objects.
  */
-fun createGeofenceList(cameraDataList: List<CameraData>): List<Geofence> {
-    return cameraDataList.map { data ->
-//        Log.d("unique",">>>"+data.location.replace(" ","").lowercase(Locale.getDefault()))
-        Geofence.Builder()
-            .setRequestId(
-                data.location.replace(" ", "*").lowercase(Locale.getDefault())
-            )  // Unique identifier for this geofence
-            .setCircularRegion(
-                data.latitude,
-                data.longitude,
-                500f  // Radius in meters, adjust as necessary
+fun createGeofenceList(context: Context, cameraDataList: List<CameraData>): List<Geofence> {
+    val alertDistances = PreferencesUtil.getString(context, Constants.PREF_ALERT_DISTANCES)
+        ?.split(",")?.filter { it.isNotEmpty() }?.map { it.toFloat() } ?: listOf(500f)
+    
+    val geofences = mutableListOf<Geofence>()
+    
+    cameraDataList.forEach { data ->
+        val baseId = data.location.replace(" ", "*").lowercase(Locale.getDefault())
+        
+        // Add geofences for each configured distance
+        alertDistances.forEach { distance ->
+            geofences.add(
+                Geofence.Builder()
+                    .setRequestId("${baseId}_$distance")
+                    .setCircularRegion(
+                        data.latitude,
+                        data.longitude,
+                        distance
+                    )
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                    .setLoiteringDelay(5000)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build()
             )
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)// Geofence does not automatically expire
-            .setLoiteringDelay(5000)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_DWELL or Geofence.GEOFENCE_TRANSITION_EXIT)  // Trigger on enter and exit
-            .build()
+        }
     }
+    return geofences
 }
 
 /**
@@ -76,7 +88,7 @@ fun List<CameraData>.findNearestCameras(
                 latitude = it.latitude
                 longitude = it.longitude
             }.distanceTo(currentLocation)
-        }.take(50)//Will take only 50 nearby camera locations
+        }.take(20)//Will take only 20 nearby camera locations
     } else {
         return sortedBy {
             Location("").apply {
@@ -292,6 +304,20 @@ fun playNotificationSound(context: Context, notificationSound: Int) {
     mediaPlayer.start()
     mediaPlayer.setOnCompletionListener { mp ->
         mp.release() // Release media player resources once the sound playback is complete
+    }
+}
+
+private var tts: TextToSpeech? = null
+fun speak(context: Context, text: String) {
+    if (tts == null) {
+        tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.US
+                tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
+            }
+        }
+    } else {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 }
 

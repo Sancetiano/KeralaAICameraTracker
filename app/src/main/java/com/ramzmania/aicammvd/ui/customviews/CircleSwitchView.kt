@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 
 
@@ -35,6 +37,7 @@ import androidx.compose.ui.unit.Dp
 fun CustomCircleSwitch(outerCircleSize: Dp, innerCircleSize: Dp, outerColor:Color, innerColor:Color,onClick: () -> Unit, onLongPress: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Canvas(modifier = Modifier.size(outerCircleSize)
+        .semantics { contentDescription = "Location Switch" }
 //        .pointerInput(Unit) {
 //
 //        }
@@ -107,4 +110,3 @@ fun CustomCircleSwitch(outerCircleSize: Dp, innerCircleSize: Dp, outerColor:Colo
     }
 
 }
-

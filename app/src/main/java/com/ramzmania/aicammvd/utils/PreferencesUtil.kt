@@ -10,6 +10,9 @@ object PreferencesUtil {
     private const val PREFS_NAME = "AiCameraPrefs"
     private const val IS_TRACKER_RUNNING = "IsTrackerRunning"
     private const val GEO_PENDING_INTENT = "pendingintent_geo"
+    private const val PREF_LAST_PASSED_ID = "pref_last_passed_id"
+    private const val PREF_LAST_PASSED_TIME = "pref_last_passed_time"
+
     /**
      * Retrieves the SharedPreferences instance.
      * @param context The context used to retrieve SharedPreferences.
@@ -50,6 +53,21 @@ object PreferencesUtil {
         getPreferences(context).getString(key, "")
 
     /**
+     * Sets a boolean value in SharedPreferences.
+     */
+    fun setBoolean(context: Context, key: String, value: Boolean) {
+        val editor = getPreferences(context).edit()
+        editor.putBoolean(key, value)
+        editor.apply()
+    }
+
+    /**
+     * Retrieves a boolean value from SharedPreferences.
+     */
+    fun getBoolean(context: Context, key: String, defaultValue: Boolean = false): Boolean =
+        getPreferences(context).getBoolean(key, defaultValue)
+
+    /**
      * Sets the pending intent ID in SharedPreferences.
      * @param context The context used to access SharedPreferences.
      * @param id The pending intent ID to be stored.
@@ -75,4 +93,25 @@ object PreferencesUtil {
      */
     fun isTrackerRunning(context: Context): Boolean =
         getPreferences(context).getBoolean(IS_TRACKER_RUNNING, false)
+
+    fun setLong(context: Context, key: String, value: Long) {
+        getPreferences(context).edit().putLong(key, value).apply()
+    }
+
+    fun getLong(context: Context, key: String, defaultValue: Long = 0L): Long =
+        getPreferences(context).getLong(key, defaultValue)
+
+    fun setLastPassedCamera(context: Context, baseId: String) {
+        val editor = getPreferences(context).edit()
+        editor.putString(PREF_LAST_PASSED_ID, baseId)
+        editor.putLong(PREF_LAST_PASSED_TIME, System.currentTimeMillis())
+        editor.apply()
+    }
+
+    fun isAlreadyNotified(context: Context, baseId: String): Boolean {
+        val lastId = getPreferences(context).getString(PREF_LAST_PASSED_ID, "")
+        val lastTime = getPreferences(context).getLong(PREF_LAST_PASSED_TIME, 0L)
+        return lastId == baseId && (System.currentTimeMillis() - lastTime) < 60000 // 1 minute window
+    }
 }
+
