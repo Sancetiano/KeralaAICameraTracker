@@ -26,6 +26,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.CountDownLatch
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import androidx.work.ExistingWorkPolicy
+import com.ramzmania.aicammvd.geofencing.calculateDistance
+import com.ramzmania.aicammvd.geofencing.getAllLocationList
+import com.ramzmania.aicammvd.utils.Constants.LOCATION_WORK_MANAGER_TAG
+import java.util.concurrent.TimeUnit
 
 /**
  * Worker class responsible for fetching and updating location data in the background.
@@ -77,9 +84,25 @@ class LocationWorker @AssistedInject constructor(
                         }
                         Logger.d("Updated location: Latitude ${it.latitude}, Longitude ${it.longitude}")
                         updateNotification()
-                        result = Result.success()
+                        
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val nearestDistance = getDistanceToNearestCamera(it)
+                            var nextDelaySeconds = 15 * 60L // Default 15 mins
+
+                            if (nearestDistance <= 2.0) { // Within 2km (Active Zone)
+                                nextDelaySeconds = 5L // 5 seconds
+                            } else if (nearestDistance <= 5.0) {
+                                nextDelaySeconds = 60L // 1 minute
+                            } else if (nearestDistance <= 10.0) {
+                                nextDelaySeconds = 5 * 60L // 5 minutes
+                            }
+
+                            Logger.d("Nearest camera distance: $nearestDistance km. Next check in $nextDelaySeconds seconds.")
+                            scheduleNextWork(nextDelaySeconds)
+                            result = Result.success()
+                            latch.countDown()
+                        }
                     }
-                    latch.countDown()
                 }
 
                 override fun onLocationError(e: Exception) {
@@ -144,22 +167,33 @@ class LocationWorker @AssistedInject constructor(
         val notificationManager: NotificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(FAKE_SERVICE_NOTIFICATION_ID, builder.build())
-
-//        NotificationUtil.createNotificationChannel(
-//            applicationContext,
-//            CHANNEL_ID,
-//            NotificationCompat.PRIORITY_HIGH
-//        )
-//        NotificationUtil.showNotification(
-//            applicationContext,
-//            "Location Tracker Started.from work manager.",
-//            "work manage tracking now...",
-//            homePagePendingIntent(applicationContext),
-//            R.drawable.red_location,
-//            NotificationCompat.PRIORITY_HIGH,
-//            Constants.FAKE_SERVICE_NOTIFICATION_ID,
-//            CHANNEL_ID,
-//            false
-//        )
     }
-}
+
+    private suspend fun getDistanceToNearestCamera(location: Location): Double {
+        val fullCameraList = getAllLocationList(applicationContext)
+        var minDistance = Double.MAX_VALUE
+        fullCameraList?.forEach { camera ->
+            val dist = calculateDistance(
+                location.latitude, location.longitude,
+                camera.latitude, camera.longitude
+            )
+            if (dist < minDistance) minDistance = dist
+        }
+        return minDistance // Distance in km
+    }
+
+    private fun scheduleNextWork(delaySeconds: Long) {
+        if (!PreferencesUtil.isTrackerRunning(applicationContext)) return
+
+        val workRequest = OneTimeWorkRequest.Builder(LocationWorker::class.java)
+            .setInitialDelay(delaySeconds, TimeUnit.SECONDS)
+            .addTag(LOCATION_WORK_MANAGER_TAG)
+            .build()
+
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            LOCATION_WORK_MANAGER_TAG,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
+    }
+}

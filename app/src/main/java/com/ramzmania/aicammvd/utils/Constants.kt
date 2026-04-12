@@ -4,7 +4,7 @@ package com.ramzmania.aicammvd.utils
  */
 object Constants {
 
-    const val SLIDER_SCREEN_PASSED: String="is_slider_sucess"
+    const val SLIDER_SCREEN_PASSED: String="is_slider_success"
     const val SLIDER_SCREEN_TAG: String="is_slider_passed"
     const val CHANNEL_ID = "AI_CAMERA_CHANNEL_ID"
     const val INTENT_FROM_GEO = "intent.geo"
@@ -26,5 +26,9 @@ object Constants {
     const val NOTIFY_TRACKING_SUBTITLE="You can stop tracking by clicking stop button below"
     const val NOTIFY_STOP_ACTION_TITLE="Stop"
 
+    // Settings Keys
+    const val PREF_ALERT_DISTANCES = "pref_alert_distances" // Comma separated distances e.g. "250,500,1000"
+    const val PREF_ALERT_TYPE = "pref_alert_type" // "sound" or "voice"
+    const val PREF_POST_PASS_NOTIFY = "pref_post_pass_notify" // Boolean
 
 }

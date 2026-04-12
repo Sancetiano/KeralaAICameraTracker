@@ -75,7 +75,7 @@ private val contextModule: ContextModule
 
                     if(nearestCameraList!=null) {
 
-                        val updatedCameraList = createGeofenceList(nearestCameraList!!)
+                        val updatedCameraList = createGeofenceList(contextModule.context, nearestCameraList!!)
                         setBatchGeoFencing(contextModule.context, updatedCameraList)
                         operationSuccess = true
                     }else

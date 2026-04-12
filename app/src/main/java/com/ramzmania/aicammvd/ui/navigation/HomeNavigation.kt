@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ramzmania.aicammvd.ui.component.home.HomeLayer
+import com.ramzmania.aicammvd.ui.screens.settings.SettingsScreen
 
 /**
  * HomeNavigation: A composable function responsible for setting up the navigation within the home screen.
@@ -42,6 +43,10 @@ fun HomeNavigation() {
                     }
                 )
             }
+        }
+        
+        composable(route = Screens.SettingsScreen.route) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
 
     }

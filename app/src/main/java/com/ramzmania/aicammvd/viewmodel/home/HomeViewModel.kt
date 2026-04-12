@@ -9,6 +9,8 @@ import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.ramzmania.aicammvd.R
@@ -136,7 +138,7 @@ constructor(
                 localRepositorySource.setNewAiCameraCircle(location.latitude, location.longitude)
                     .collect {
                         if (it.data == true) {
-                            settingWorkPeriodicScheduler(context)
+                            settingWorkDynamicScheduler(context)
 
                         }
                     }
@@ -146,20 +148,22 @@ constructor(
         }
     }
 
-    // Sets up the WorkManager periodic scheduler
-    private fun settingWorkPeriodicScheduler(context: Context) {
+    // Sets up the WorkManager dynamic scheduler
+    private fun settingWorkDynamicScheduler(context: Context) {
         setAiTracker(context)
-        val periodicWorkRequest =
-            PeriodicWorkRequest.Builder(
-                LocationWorker::class.java,
-                15,
-                TimeUnit.MINUTES
+        val workRequest =
+            OneTimeWorkRequest.Builder(
+                LocationWorker::class.java
             )
                 .addTag(LOCATION_WORK_MANAGER_TAG) // Adding a tag to the work request
                 .build()
 
         // Enqueue the work
-        WorkManager.getInstance(context).enqueue(periodicWorkRequest)
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            LOCATION_WORK_MANAGER_TAG,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
         playNotificationSound(context, R.raw.loco)
     }
 

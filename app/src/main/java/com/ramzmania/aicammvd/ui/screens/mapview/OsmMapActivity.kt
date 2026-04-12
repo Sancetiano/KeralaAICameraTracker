@@ -39,6 +39,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.util.Locale
 
 
 /**
@@ -86,7 +87,9 @@ class OsmMapActivity : BaseBinderActivity<MapViewBinding, HomeViewModel>(), MapL
             applicationContext,
             getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE)
         )
+        
         binding.osmmap.setTileSource(TileSourceFactory.MAPNIK)
+
         binding.osmmap.mapCenter
         binding.osmmap.setMultiTouchControls(true)
         binding.osmmap.getLocalVisibleRect(Rect())
@@ -96,21 +99,21 @@ class OsmMapActivity : BaseBinderActivity<MapViewBinding, HomeViewModel>(), MapL
         controller = binding.osmmap.controller
 
 
-//        mMyLocationOverlay.enableMyLocation()
-//        mMyLocationOverlay.enableFollowLocation()
-        // Enable location and follow location if coming from specific intent
-       if (intent.extras!!.containsKey(Constants.INTENT_FROM_GEO)) {
         mMyLocationOverlay.enableMyLocation()
         mMyLocationOverlay.enableFollowLocation()
+        // Enable location and follow location if coming from specific intent
+       if (intent.extras!!.containsKey(Constants.INTENT_FROM_GEO)) {
+//        mMyLocationOverlay.enableMyLocation()
+//        mMyLocationOverlay.enableFollowLocation()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
       }
         mMyLocationOverlay.isDrawAccuracyEnabled = true
-        mMyLocationOverlay.setPersonAnchor(1f, 1f)
+        mMyLocationOverlay.setPersonAnchor(0.5f, 0.5f)
 
 //        controller.setZoom(6.0)
         val startPoint =
             GeoPoint(intent.extras!!.getDouble("lat"), intent.extras!!.getDouble("long"));
-        controller.setCenter(startPoint);
+        controller.setCenter(startPoint)
         controller.animateTo(startPoint)
         controller.setZoom(16.5)
         addMarker(binding.osmmap, startPoint)
@@ -208,6 +211,7 @@ class OsmMapActivity : BaseBinderActivity<MapViewBinding, HomeViewModel>(), MapL
                         if (showDistance) {
                             binding.distanceTxt.text =
                                 "DISTANCE TO CAM : " + String.format(
+                                    Locale.getDefault(),
                                     "%.1f",
                                     calculateDistance(
                                         location.latitude,
@@ -240,7 +244,7 @@ class OsmMapActivity : BaseBinderActivity<MapViewBinding, HomeViewModel>(), MapL
                         binding.speedTxt.setBackgroundResource(R.drawable.rounded_normalspeed_text_background)
 
                     }
-                    val speedKmH = String.format("%.1f", speed * 3.6)
+                    val speedKmH = String.format(Locale.getDefault(), "%.1f", speed * 3.6)
                     binding.speedTxt.text = "Speed\n $speedKmH Km/H"
                 }
             }
