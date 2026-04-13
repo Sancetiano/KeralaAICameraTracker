@@ -1,8 +1,6 @@
 # Kerala AI Camera Tracker
 
-The Kerala AI Camera Tracker is a mobile application designed to help users track AI cameras placed
-on roads in Kerala. The app notifies users when they are near an AI camera and triggers an alert to
-notify them about the presence of the camera.
+The Kerala AI Camera Tracker is a mobile application designed to help users track AI cameras placed on roads in Kerala. The app notifies users when they are near an AI camera and triggers an alert to notify them about the presence of the camera.
 
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
 <div style="text-align: center;">
@@ -22,76 +20,67 @@ notify them about the presence of the camera.
     <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/sev.jpeg?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
 
 </div>
-
-
 </div>
-
-## Video Preview
-
-click here -> https://www.youtube.com/shorts/HvwWIvNoKvw
-
 
 ## Features
 
-- **Camera Tracking**: The app tracks the locations of AI cameras placed on roads in Kerala.
-- **Proximity Alert**: When the user approaches an AI camera, the app sends a notification to alert
-  the user.
-- **Camera Information**: Users can view information about the AI cameras
+- **Dynamic Camera Radar**: Automatically scans and monitors the nearest 20 AI cameras in your vicinity.
+- **Multi-Distance Proximity Alerts**: Choose when to be notified with configurable alert distances (250m, 500m, 750m, 1000m, 1500m, 2000m).
+- **Voice Guidance**: Professional Text-to-Speech feedback for tracking status ("Live tracking enabled") and camera proximity warnings.
+- **Pass Notifications**: Get peace of mind with a speed summary notification immediately after passing a camera point.
+- **High-Priority Lock Screen Alerts**: Notifications are configured to wake up your screen and show alerts even when the device is locked.
+- **Smart Battery Saving**: Background location check-in frequency dynamically adjusts based on your distance to the nearest camera (from 5 seconds to 15 minutes).
+- **OSM Map Interface**: Integrated OpenStreetMap for visualizing camera locations and user position with auto-zoom functionality.
+- **In-App Navigation**: Quickly jump to Google Maps navigation for any specific camera location with a single click.
+- **Speedometer**: Real-time speed tracking with color-coded warnings for overspeeding.
 
 ## How It Works
 
-So, picture this: you're cruising down the road, minding your own business, when suddenly... beep beep! You're entering the camera zone! But fear not, because our trusty app is here to save the day.
+1. **Location Tracking**: The app grabs your current location and starts sorting through the nearest cameras faster than you can say "cheese"!
+2. **Camera Radar**: Once we've got our eyes on the road, we narrow down the next 20 cameras in your vicinity to ensure peak app performance.
+3. **Frequent Check-ins**: The app uses a dynamic scheduling logic. If you are within 2km of a camera, it checks every 5 seconds for high accuracy. As you move further away, the frequency scales up to 15 minutes to save battery.
+4. **Geo-Fencing Alert**: When your vehicle enters a configured radius of a camera, the app sends out a friendly voice or sound alert.
+5. **U-Turn Protection**: The "Passed Camera" notification only triggers if you actually graze the 100-meter core coordinates of the camera, preventing false alerts if you simply turn around before reaching it.
+6. **OSM to the Rescue**: The app uses OSMDroid to pinpoint camera locations, navigate with ease, and calculate distances accurately without relying on expensive proprietary map APIs.
 
-Here's the lowdown on how it all works:
+## Security & Privacy
 
-1. **Location, Location, Location**: First things first, we've got to know where you are. Our app grabs your current location and starts sorting through the nearest 50 cameras faster than you can say "cheese"!
+- **Local Processing**: All location data and proximity calculations are processed **exclusively on your device**. Your coordinates are never uploaded to any server.
+- **No Data Harvesting**: The app does not require a user account, email, or any personal identification to function.
+- **Offline Camera Data**: The MVD AI camera location list is stored locally within the app assets.
+- **Permission Transparency**: The app requests background location access solely to provide alerts while your phone is in your pocket or the screen is off.
 
-2. **Frequent Check-ins**: Every 15 minutes, our app gives a little nudge to your location, making sure we're always on top of things. And we're not just talking about any old nudge, but a smooth, efficient check-in that won't bog down your system.
+## Prerequisites
 
-3. **Camera Radar**: Once we've got our eyes on the road, we start narrowing down the next 50 cameras in your vicinity. It's like having your very own camera radar, but way cooler.
+To build or contribute to this project, ensure your local environment meets the following requirements:
 
-4. **Geo-Fencing Alert**: Now, here's where the magic happens. When your vehicle saunters into the 500-meter radius of a camera, our app sends out a friendly alert, letting you know you've entered the camera zone. It's like having a personal navigator whispering in your ear, but with a touch of whimsy.
+- **Java Development Kit (JDK)**: Version 17 is required.
+- **Android Studio**: Android Studio Hedgehog | 2023.1.1 or newer is recommended. The latest version of Android Studio is optimal as it have agentic ai capabilities.
+- **Kotlin**: Version 1.9.22.
+- **Gradle**: The project uses Kotlin DSL for Gradle builds.
+- **KSP**: The project is migrated to KSP (Kotlin Symbol Processing) for faster build times and future-proofing.
 
-5. **OSM to the Rescue**: Say goodbye to those money-eating map apps, because we've got OSMDroid on our side. With its nifty features, we can pinpoint camera locations, navigate with ease, and calculate distances like a boss.
+## Build Warnings
 
-6. **Speedometer Surprise**: Oh, and did we mention the speed alerts? Yep, our app keeps an eye on your speed too, making sure you stay within the limits and avoid any pesky fines.
-
-So there you have it, folks! With our AI camera tracker app, safety meets efficiency, sprinkled with a generous dose of fun. Happy cruising!
-
-## Technologies Used
-
-- **Kotlin**: The app is built using Kotlin, a modern programming language for Android development known for its conciseness and safety features. ([Kotlin GitHub Repository](https://github.com/JetBrains/kotlin))
-- **Jetpack Compose**: Jetpack Compose is used for building the user interface (UI) of the app. It offers a modern and declarative way to construct UIs, making it easier to develop and maintain complex UIs. ([Jetpack Compose GitHub Repository](https://github.com/androidx/androidx/tree/androidx-main/compose))
-- **WorkManager**: WorkManager is used for background processing tasks such as updating camera locations or sending notifications. It provides a flexible way to schedule and execute deferrable, asynchronous tasks. ([WorkManager Documentation](https://developer.android.com/topic/libraries/architecture/workmanager))
-- **Geofencing**: Geofencing technology is utilized to detect when the user enters or exits predefined geographical boundaries (such as near AI camera locations). This allows the app to trigger proximity alerts accurately. ([Android Location and Geofencing Documentation](https://developer.android.com/training/location/geofencing))
-- **Coroutines**: Coroutines are used for managing asynchronous operations, such as fetching camera information from a remote server or handling database operations. They simplify asynchronous programming by providing structured concurrency. ([Kotlin Coroutines GitHub Repository](https://github.com/Kotlin/kotlinx.coroutines))
-- **MVVM Architecture**: The app follows the Model-View-ViewModel (MVVM) architectural pattern, separating the presentation layer from the business logic and data layer. This promotes better code organization, testability, and maintainability. ([Android Architecture Components Documentation](https://developer.android.com/topic/libraries/architecture))
-- **Navigation Component**: Navigation Component is used for implementing navigation between different screens or destinations within the app. It provides a consistent and predictable way to navigate while handling fragment transactions and back stack management. ([Navigation Component Documentation](https://developer.android.com/guide/navigation))
-- **osmdroid**: osmdroid is used as the map library for displaying maps and visualizing AI camera locations. ([osmdroid GitHub Repository](https://github.com/osmdroid/osmdroid))
-
-## MY GITHUB TROPHY
-
-[![trophy](https://github-profile-trophy.vercel.app/?username=rameshvoltella)](https://github.com/ryo-ma/github-profile-trophy)
-
+> [!IMPORTANT]
+> **Avoid Multiple Editors**: Do not have the project open in two IDEs or code editors (e.g., Android Studio and VS Code) simultaneously. This often leads to `IOException` or "Access Denied" errors during the build process as both editors may attempt to lock the same `R.jar` or intermediate build files.
 
 ## Installation
 
-The Kerala AI Camera Tracker app is available for Android
-
 ### Android
 
-1. Download the APK file from
-   here [DOWNLOAD](https://github.com/rameshvoltella/KeralaAICameraTracker/tags)
-2. Enable installation from unknown sources in your device settings.
+1. Download the APK file from here [DOWNLOAD](https://github.com/rameshvoltella/KeralaAICameraTracker/tags)
+2. Enable installation from "Unknown Sources" in your device settings.
 3. Install the APK file on your Android device.
+4. **Crucial**: Ensure location permission is set to **"Allow all the time"** in the app settings for background tracking to work correctly.
 
 ## Contributing
 
-I am welcome contributions from the community to improve the Kerala AI Camera Tracker app.
+I welcome contributions from the community to improve the Kerala AI Camera Tracker app.
 
 1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/improvement`).
-3. Make your changes and commit them (`git commit -am 'Add feature/improvement'`).
-4. Push to the branch (`git push origin feature/improvement`).
-5. Create a new Pull Request.
-
+2. Clone the repository to your local machine (`git clone https://github.com/YOUR_USERNAME/KeralaAICameraTracker.git`).
+3. Create a new branch (`git checkout -b feature/improvement`).
+4. Make your changes and commit them (`git commit -am 'Add feature/improvement'`).
+5. Push to the branch (`git push origin feature/improvement`).
+6. Create a new Pull Request.
