@@ -9,7 +9,7 @@ Copyright (c) 2026 Sance C Shaji
 ## 1. Overview
 This repository is a derivative work based on the original project "[KeralaAICameraTracker](https://github.com/rameshvoltella/KeralaAICameraTracker)" by [rameshvoltella](https://github.com/rameshvoltella), which is licensed under the MIT License. 
 
-While the original source code remains subject to its initial licensing terms, all subsequent modifications, new features, documentation, and assets added to this repository by [Sancetiano] (hereafter referred to as "The Maintainer") are subject to the proprietary terms outlined below.
+While the original source code remains subject to its initial licensing terms, all subsequent modifications, new features, documentation, and assets added to this repository by [Sancetiano](https://github.com/Sancetiano) (hereafter referred to as "The Maintainer") are subject to the proprietary terms outlined below.
 
 ## 2. Grant of Rights for New Contributions
 The Maintainer hereby grants you permission to:
