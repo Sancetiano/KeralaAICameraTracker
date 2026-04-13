@@ -3,6 +3,7 @@ Copyright (c) 2026 Sance C Shaji
 
 **Project:** [KeralaAICameraTracker](https://github.com/Sancetiano/KeralaAICameraTracker)  
 **Author of Modifications:** [Sance C Shaji](https://github.com/Sancetiano) 
+
 **Date of First New Commit:** [12/04/2026]
 
 ## 1. Overview
