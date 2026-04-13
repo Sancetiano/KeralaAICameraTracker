@@ -9,15 +9,22 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
         <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/teo.jpeg?raw=true" alt="Tracker ON" style="width: 40%; height: 40%;">
     </div>
 <div style="text-align: center;">
-        <h3>LOCATION LIST / MAP VIEW</h3>
-     <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/three.jpeg?raw=true" alt="Location List" style="width: 40%; height: 40%;">
-    <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/eight.jpeg?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
+        <h3>MAP VIEWS</h3>
+     <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/three.jpeg?raw=true" alt="Location List" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/eight.jpeg?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
 
 </div>
 <div style="text-align: center;">
         <h3>NOTIFICATION ALERT</h3>
-        <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/five.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
-    <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/beta/appfiles/sev.jpeg?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
+        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/five.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
+        
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/six.png?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
+
+</div>
+<div style="text-align: center;">
+        <h3>SETTINGS AND LOCATION LIST</h3>
+        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/three.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/sev.jpeg?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
 
 </div>
 </div>
@@ -69,7 +76,7 @@ To build or contribute to this project, ensure your local environment meets the 
 
 ### Android
 
-1. Download the APK file from here [DOWNLOAD](https://github.com/rameshvoltella/KeralaAICameraTracker/tags)
+1. Download the APK file from here [DOWNLOAD](https://github.com/Sancetiano/KeralaAICameraTracker/releases/tag/v2.1)
 2. Enable installation from "Unknown Sources" in your device settings.
 3. Install the APK file on your Android device.
 4. **Crucial**: Ensure location permission is set to **"Allow all the time"** in the app settings for background tracking to work correctly.
@@ -81,6 +88,6 @@ I welcome contributions from the community to improve the Kerala AI Camera Track
 1. Fork the repository.
 2. Clone the repository to your local machine (`git clone https://github.com/YOUR_USERNAME/KeralaAICameraTracker.git`).
 3. Create a new branch (`git checkout -b feature/improvement`).
-4. Make your changes and commit them (`git commit -am 'Add feature/improvement'`).
+4. Make your changes and commit them (eg. `git commit -am 'Add feature/improvement'`).
 5. Push to the branch (`git push origin feature/improvement`).
 6. Create a new Pull Request.
