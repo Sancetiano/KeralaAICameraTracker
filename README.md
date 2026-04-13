@@ -10,8 +10,8 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
     </div>
 <div style="text-align: center;">
         <h3>MAP VIEWS</h3>
-     <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/three.jpeg?raw=true" alt="Location List" style="width: 40%; height: 40%;">
-    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/eight.jpeg?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
+     <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/new-three.png?raw=true" alt="Location List" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/four.png?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
 
 </div>
 <div style="text-align: center;">
@@ -23,7 +23,7 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
 <div style="text-align: center;">
         <h3>SETTINGS AND LOCATION LIST</h3>
         <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/three.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
-    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/sev.jpeg?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/settings.png?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
 
 </div>
 </div>
