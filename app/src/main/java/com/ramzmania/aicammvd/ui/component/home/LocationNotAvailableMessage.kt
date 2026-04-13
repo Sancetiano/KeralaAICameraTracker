@@ -26,10 +26,14 @@ import com.ramzmania.aicammvd.R
 
 /**
  * LocationNotAvailableMessage: A composable function responsible for rendering a message when location
- * is not available. It provides a clickable text prompting the user to enable location settings.
+ * is not available or permissions are insufficient. It provides a clickable text prompting the user 
+ * to enable location settings or grant "Allow all the time" permission.
  */
 @Composable
-fun LocationNotAvailableMessage() {
+fun LocationNotAvailableMessage(
+    message: String = "Location not available. Click here to enable 'Allow all the time' and relaunch the app.",
+    onClickAction: (() -> Unit)? = null
+) {
     val context= LocalContext.current
     Box(
         modifier = Modifier
@@ -40,11 +44,16 @@ fun LocationNotAvailableMessage() {
     ) {
         ClickableText(
              modifier = Modifier.align(Alignment.Center),
-            text = AnnotatedString("Location not available click here to enable\n and re-Launch the app"),
+            text = AnnotatedString(message),
             onClick = {
-
-                val locationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                context.startActivity(locationIntent)
+                if (onClickAction != null) {
+                    onClickAction()
+                } else {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }
             },
             style = TextStyle(
                 color = colorResource(

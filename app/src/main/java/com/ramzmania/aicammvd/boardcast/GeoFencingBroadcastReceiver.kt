@@ -49,7 +49,7 @@ class GeoFencingBroadcastReceiver : BroadcastReceiver() {
         if (triggeringGeofences != null) {
             for (geofence in triggeringGeofences) {
                 val requestId = geofence.requestId
-                // RequestId is formatted as "location_name_distance"
+                // RequestId is formatted as "location_name_distance" or "location_name_reached"
                 val lastUnderscoreIndex = requestId.lastIndexOf("_")
                 val triggeredLocationName = if (lastUnderscoreIndex != -1) {
                     requestId.substring(0, lastUnderscoreIndex).replace("*", " ").uppercase(Locale.getDefault())
@@ -57,22 +57,32 @@ class GeoFencingBroadcastReceiver : BroadcastReceiver() {
                     requestId.replace("*", " ").uppercase(Locale.getDefault())
                 }
                 
-                val distanceStr = if (lastUnderscoreIndex != -1) requestId.substring(lastUnderscoreIndex + 1) else ""
+                // Get the base ID for tracking (ignore distance suffix)
+                val baseLocationId = if (lastUnderscoreIndex != -1) requestId.substring(0, lastUnderscoreIndex) else requestId
+                val distanceOrType = if (lastUnderscoreIndex != -1) requestId.substring(lastUnderscoreIndex + 1) else ""
+
+                if (distanceOrType == "reached") {
+                    if (geofencingEvent.geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                        Logger.d("Geofence - Reached core of $baseLocationId")
+                        PreferencesUtil.setCameraReached(context, baseLocationId, true)
+                    }
+                    continue
+                }
 
                 when (geofencingEvent.geofenceTransition) {
                     Geofence.GEOFENCE_TRANSITION_ENTER -> {
                         if (PreferencesUtil.isTrackerRunning(context)) {
-                            handleEnterTransition(context, triggeredLocationName, distanceStr, location)
+                            handleEnterTransition(context, triggeredLocationName, distanceOrType, location)
                         }
                     }
 
                     Geofence.GEOFENCE_TRANSITION_EXIT -> {
                         if (PreferencesUtil.isTrackerRunning(context)) {
-                            // baseId is used to identify the camera regardless of the geofence circle distance
-                            val baseId = requestId.substring(0, if (lastUnderscoreIndex != -1) lastUnderscoreIndex else requestId.length)
-                            if (!PreferencesUtil.isAlreadyNotified(context, baseId)) {
+                            // Only notify if we actually reached the camera coordinates (Fix for U-turn false positives)
+                            if (PreferencesUtil.isCameraReached(context, baseLocationId) && !PreferencesUtil.isAlreadyNotified(context, baseLocationId)) {
                                 handleExitTransition(context, triggeredLocationName, location)
-                                PreferencesUtil.setLastPassedCamera(context, baseId)
+                                PreferencesUtil.setLastPassedCamera(context, baseLocationId)
+                                PreferencesUtil.setCameraReached(context, baseLocationId, false) // Reset for next time
                             }
                         }
                     }
@@ -113,7 +123,8 @@ class GeoFencingBroadcastReceiver : BroadcastReceiver() {
     }
 
     private fun showNotification(context: Context, title: String, message: String, location: Location?) {
-        NotificationUtil.createNotificationChannel(context, Constants.CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH)
+        // Use the HIGH priority ALERT_CHANNEL_ID for lock screen alerts
+        NotificationUtil.createNotificationChannel(context, Constants.ALERT_CHANNEL_ID, NotificationManager.IMPORTANCE_HIGH)
 
         val intent = Intent(context, OsmMapActivity::class.java).apply {
             putExtra("lat", location?.latitude ?: 0.0)
@@ -132,7 +143,7 @@ class GeoFencingBroadcastReceiver : BroadcastReceiver() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             NotificationUtil.showNotification(
                 context, title, message, pendingIntent, R.drawable.ai_camera_marker,
-                NotificationCompat.PRIORITY_HIGH, GEOFENCE_PENDING_INTENT_ID, Constants.CHANNEL_ID, true
+                NotificationCompat.PRIORITY_MAX, GEOFENCE_PENDING_INTENT_ID, Constants.ALERT_CHANNEL_ID, true
             )
         }
     }

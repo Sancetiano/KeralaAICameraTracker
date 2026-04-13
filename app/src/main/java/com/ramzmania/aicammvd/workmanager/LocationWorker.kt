@@ -21,6 +21,7 @@ import com.ramzmania.aicammvd.utils.Constants.CHANNEL_ID
 import com.ramzmania.aicammvd.utils.Constants.FAKE_SERVICE_NOTIFICATION_ID
 import com.ramzmania.aicammvd.utils.Logger
 import com.ramzmania.aicammvd.utils.PreferencesUtil
+import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,8 +44,8 @@ import java.util.concurrent.TimeUnit
  */
 @HiltWorker
 class LocationWorker @AssistedInject constructor(
-    context: Context,
-    workerParams: WorkerParameters,
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
     private val localRepository: LocalRepository
 ) : Worker(context, workerParams) {
 
@@ -196,4 +197,4 @@ class LocationWorker @AssistedInject constructor(
             workRequest
         )
     }
-}
+}

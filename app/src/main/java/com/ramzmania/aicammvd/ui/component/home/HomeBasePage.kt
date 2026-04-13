@@ -63,6 +63,7 @@ import com.ramzmania.aicammvd.ui.component.cameralist.CameraListView
 import com.ramzmania.aicammvd.ui.component.permissionhelper.PermissionsHandler
 import com.ramzmania.aicammvd.ui.navigation.Screens
 import com.ramzmania.aicammvd.utils.PreferencesUtil
+import com.ramzmania.aicammvd.utils.NetworkUtils
 import com.ramzmania.aicammvd.viewmodel.home.HomeViewModel
 import kotlinx.coroutines.launch
 
@@ -89,9 +90,11 @@ fun HomeLayer(viewModelStoreOwner: ViewModelStoreOwner, navigateTo: (route: Stri
     val currentLocation = model.currentLocation.observeAsState().value
     var dataLoaded by remember { mutableStateOf(false) }
     var locationNotAvailable by remember { mutableStateOf(false) }
+    var internetNotAvailable by remember { mutableStateOf(false) }
     val setlayoutLayer = model.setLayout.collectAsState().value
     val setNoLocationLayout = model.setNoLocationData.collectAsState().value
     val nearestHundredCamerasList = model.filterCameraList.observeAsState().value
+    val locationEnabled by model.locationEnabled.collectAsState()
     var showPermissionsDialog by remember { mutableStateOf(false) }
     val permissions = listOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -99,8 +102,13 @@ fun HomeLayer(viewModelStoreOwner: ViewModelStoreOwner, navigateTo: (route: Stri
     )
     val permissionsState = rememberMultiplePermissionsState(permissions = permissions)
     val allPermissionsGranted = permissionsState.permissions.all { it.status.isGranted }
-//    val updateLocationData: (enableState:Boolean) -> Unit = model::updateLocationButton
-//    val stopFromService:Boolean=model.locationEnabled.collectAsState().value
+
+    // Check if internet is available
+    LaunchedEffect(Unit) {
+        if (!NetworkUtils.isInternetAvailable(currentContext)) {
+            internetNotAvailable = true
+        }
+    }
 
     // Check if permissions dialog should be shown
     LaunchedEffect(permissionsState) {
@@ -208,14 +216,32 @@ fun HomeLayer(viewModelStoreOwner: ViewModelStoreOwner, navigateTo: (route: Stri
                                 model.setCurrentLocation(location)
                                 model.fetchAiLocationInfo()
                             } else {
-                                Toast.makeText(
-                                    currentContext,
-                                    "Location not available",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                if(!PreferencesUtil.isTrackerRunning(context = currentContext)) {
-                                    locationNotAvailable = true
-                                }
+                                fusedLocationProviderClient.getCurrentLocation(com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, null)
+                                    .addOnSuccessListener { freshLocation: Location? ->
+                                        if (freshLocation != null) {
+                                            model.setCurrentLocation(freshLocation)
+                                            model.fetchAiLocationInfo()
+                                        } else {
+                                            Toast.makeText(
+                                                currentContext,
+                                                "Location not available",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            if(!PreferencesUtil.isTrackerRunning(context = currentContext)) {
+                                                locationNotAvailable = true
+                                            }
+                                        }
+                                    }
+                                    .addOnFailureListener {
+                                        Toast.makeText(
+                                            currentContext,
+                                            "Location not available",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        if(!PreferencesUtil.isTrackerRunning(context = currentContext)) {
+                                            locationNotAvailable = true
+                                        }
+                                    }
                             }
                         }
                         .addOnFailureListener {
@@ -236,172 +262,179 @@ fun HomeLayer(viewModelStoreOwner: ViewModelStoreOwner, navigateTo: (route: Stri
         }
 
         // UI based on aiLocationInfo
-        Box(modifier = Modifier.fillMaxSize()) {
-            when (aiLocationInfo) {
-                is Resource.Loading -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                        strokeWidth = 8.dp
-                    )
-                }
-
-                is Resource.Success -> {
-
-                }
-
-                is Resource.DataError -> {
-                    Text("Failed to load data", modifier = Modifier.align(Alignment.Center))
-                }
-
-                else -> Unit // Handle other states, if necessary
+        if (internetNotAvailable) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                LocationNotAvailableMessage(
+                    message = "Internet not available. Please turn on internet and location to access this app.",
+                    onClickAction = {
+                        val intent = android.content.Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS)
+                        currentContext.startActivity(intent)
+                    }
+                )
             }
-        }
-        if (setNoLocationLayout) {
+        } else if (setNoLocationLayout) {
             Box(modifier = Modifier.fillMaxSize()) {
                 LocationNotAvailableMessage()
             }
-
-            } else if (setlayoutLayer) {
+        } else {
+            // UI based on aiLocationInfo
             Box(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight()
-                        .padding(0.dp, 0.dp, 0.dp, 0.dp)
-                        .align(Alignment.TopCenter)
-                        .background(colorResource(id = R.color.brown_black))
-                ) {
-                    // Content of the HorizontalPager or any other composables
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize().padding(0.dp,20.dp,0.dp,85.dp),
-                        userScrollEnabled = false
-                    ) { page ->
-                        // Content of HorizontalPager
-                        if (page == 0) {
-                            TrackerViewpagerItem(
-                                title = "Track AI Camera",
-                                subtitle = "Location  : OFF",
-                                enabledLocationValue = model.locationEnabled.value,
-                            )
-                        } else {
-                            CameraListView(cameraList = nearestHundredCamerasList!!)
-                        }
-                    }
-
-                    // Settings Button
-                    IconButton(
-                        onClick = { navigateTo(Screens.SettingsScreen.route) },
-                        modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(48.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            tint = Color.White,
-                            modifier = Modifier.size(32.dp)
+                when (aiLocationInfo) {
+                    is Resource.Loading -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                            strokeWidth = 8.dp
                         )
                     }
+                    is Resource.Success -> {
+                    }
+                    is Resource.DataError -> {
+                        Text("Failed to load data", modifier = Modifier.align(Alignment.Center))
+                    }
+                    else -> Unit // Handle other states, if necessary
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(90.dp)
-                        .padding(20.dp, 0.dp, 20.dp, 20.dp)
-                        .align(Alignment.BottomCenter)
-                        .border(
-                            2.dp,
-                            colorResource(id = R.color.white_border),
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .clip(
-                            RoundedCornerShape(
-                                topStart = 10.dp,
-                                topEnd = 10.dp,
-                                bottomEnd = 10.dp,
-                                bottomStart = 10.dp
-                            )
-                        )
-                        .background(colorResource(id = R.color.brown_black))
-                ) {
-                    // Content of the red box
-                    Row(Modifier.fillMaxSize()) {
-                        Column(
+            }
 
-                            Modifier
-                                .weight(1f)
-                                // .background(colorResource(id = R.color.red_demo))
-                                .background(
-                                    if (selectedColumn == 0) colorResource(id = R.color.red_demo) else colorResource(
-                                        id = R.color.brown_black
-                                    )
+            if (setlayoutLayer) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight()
+                            .padding(0.dp, 0.dp, 0.dp, 0.dp)
+                            .align(Alignment.TopCenter)
+                            .background(colorResource(id = R.color.brown_black))
+                    ) {
+                        // Content of the HorizontalPager or any other composables
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize().padding(0.dp,20.dp,0.dp,85.dp),
+                            userScrollEnabled = false
+                        ) { page ->
+                            // Content of HorizontalPager
+                            if (page == 0) {
+                                TrackerViewpagerItem(
+                                    title = "Track AI Camera",
+                                    subtitle = "Location  : OFF",
+                                    enabledLocationValue = locationEnabled,
                                 )
-                                .fillMaxHeight()
-                                .clickable {
-                                    currentPage = 0
-                                    selectedColumn = 0
-                                    scrollCoroutineScope.launch {
-                                        pagerState.animateScrollToPage(0)
-                                    }
-                                },
-                            verticalArrangement = Arrangement.Center
+                            } else {
+                                CameraListView(cameraList = nearestHundredCamerasList!!)
+                            }
+                        }
+
+                        // Settings Button
+                        IconButton(
+                            onClick = { navigateTo(Screens.SettingsScreen.route) },
+                            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp).size(48.dp)
                         ) {
-                            Text(
-                                text = "TRACKER", modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .fillMaxWidth(), textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorResource(id = R.color.white_perment)
-                            )
-                        }
-                        Column(
-                            Modifier
-
-                                .background(colorResource(id = R.color.red_demo))
-                                .fillMaxHeight()
-                                .width(3.dp),
-                            verticalArrangement = Arrangement.Center,
-
-
-                            ) {
-
-                        }
-                        Column(
-                            Modifier
-                                .weight(1f)
-//                        .background(colorResource(id = R.color.brown_black))
-                                .background(
-                                    if (selectedColumn == 1) colorResource(id = R.color.red_demo) else colorResource(
-                                        id = R.color.brown_black
-                                    )
-                                )
-                                .fillMaxHeight()
-                                .clickable {
-                                    currentPage = 1
-                                    selectedColumn = 1
-                                    scrollCoroutineScope.launch {
-                                        pagerState.animateScrollToPage(1)
-                                    }
-                                },
-                            verticalArrangement = Arrangement.Center,
-
-
-                            ) {
-                            Text(
-                                text = "LOCATION", modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                                    .fillMaxWidth(), textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorResource(id = R.color.white_perment)
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = Color.White,
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                     }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(90.dp)
+                            .padding(20.dp, 0.dp, 20.dp, 20.dp)
+                            .align(Alignment.BottomCenter)
+                            .border(
+                                2.dp,
+                                colorResource(id = R.color.white_border),
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .clip(
+                                RoundedCornerShape(
+                                    topStart = 10.dp,
+                                    topEnd = 10.dp,
+                                    bottomEnd = 10.dp,
+                                    bottomStart = 10.dp
+                                )
+                            )
+                            .background(colorResource(id = R.color.brown_black))
+                    ) {
+                        // Content of the red box
+                        Row(Modifier.fillMaxSize()) {
+                            Column(
 
+                                Modifier
+                                    .weight(1f)
+                                    // .background(colorResource(id = R.color.red_demo))
+                                    .background(
+                                        if (selectedColumn == 0) colorResource(id = R.color.red_demo) else colorResource(
+                                            id = R.color.brown_black
+                                        )
+                                    )
+                                    .fillMaxHeight()
+                                    .clickable {
+                                        currentPage = 0
+                                        selectedColumn = 0
+                                        scrollCoroutineScope.launch {
+                                            pagerState.animateScrollToPage(0)
+                                        }
+                                    },
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "TRACKER", modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .fillMaxWidth(), textAlign = TextAlign.Center,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorResource(id = R.color.white_perment)
+                                )
+                            }
+                            Column(
+                                Modifier
+
+                                    .background(colorResource(id = R.color.red_demo))
+                                    .fillMaxHeight()
+                                    .width(3.dp),
+                                verticalArrangement = Arrangement.Center,
+
+
+                                ) {
+
+                            }
+                            Column(
+                                Modifier
+                                    .weight(1f)
+//                        .background(colorResource(id = R.color.brown_black))
+                                    .background(
+                                        if (selectedColumn == 1) colorResource(id = R.color.red_demo) else colorResource(
+                                            id = R.color.brown_black
+                                        )
+                                    )
+                                    .fillMaxHeight()
+                                    .clickable {
+                                        currentPage = 1
+                                        selectedColumn = 1
+                                        scrollCoroutineScope.launch {
+                                            pagerState.animateScrollToPage(1)
+                                        }
+                                    },
+                                verticalArrangement = Arrangement.Center,
+
+
+                                ) {
+                                Text(
+                                    text = "LOCATION", modifier = Modifier
+                                        .align(Alignment.CenterHorizontally)
+                                        .fillMaxWidth(), textAlign = TextAlign.Center,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorResource(id = R.color.white_perment)
+                                )
+                            }
+                        }
+
+                    }
                 }
             }
         }
     }
-
-
 }

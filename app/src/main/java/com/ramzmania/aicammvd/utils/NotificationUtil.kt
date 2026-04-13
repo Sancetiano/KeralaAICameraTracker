@@ -36,6 +36,7 @@ object NotificationUtil {
                 enableLights(true)
                 lightColor = Color.RED
                 enableVibration(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             val notificationManager = context.getSystemService(NotificationManager::class.java)
             notificationManager?.createNotificationChannel(channel)
@@ -61,6 +62,8 @@ object NotificationUtil {
             .setContentTitle(title)
             .setContentText(content)
             .setPriority(priority)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
         if (intent != null) {
             notificationBuilder.setContentIntent(intent)
 
