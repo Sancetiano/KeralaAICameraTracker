@@ -5,26 +5,25 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
 <div style="text-align: center;">
         <h3>TRACKER ON/OFF</h3>
-        <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/tree/main/appfiles/one.jpeg?raw=true" alt="Tracker OFF" style="width: 40%; height: 40%;">
-        <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/tree/main/appfiles/teo.jpeg?raw=true" alt="Tracker ON" style="width: 40%; height: 40%;">
+        <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/main/appfiles/one.jpeg?raw=true" alt="Tracker OFF" style="width: 40%; height: 40%;">
+        <img src="https://github.com/rameshvoltella/KeralaAICameraTracker/blob/main/appfiles/teo.jpeg?raw=true" alt="Tracker ON" style="width: 40%; height: 40%;">
     </div>
 <div style="text-align: center;">
         <h3>MAP VIEWS</h3>
-     <img src="https://github.com/Sancetiano/KeralaAICameraTracker/tree/main/appfiles/three.jpeg?raw=true" alt="Location List" style="width: 40%; height: 40%;">
-    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/tree/main/appfiles/eight.jpeg?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
+     <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/new-three.png?raw=true" alt="Location List" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/four.png?raw=true" alt="MAP VIEW" style="width: 40%; height: 40%;">
 
 </div>
 <div style="text-align: center;">
         <h3>NOTIFICATION ALERT</h3>
-        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/tree/main/appfiles/five.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
-
-    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/beta/appfiles/six.png?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
+        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/five.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
+        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/six.png?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
 
 </div>
 <div style="text-align: center;">
         <h3>SETTINGS AND LOCATION LIST</h3>
-        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/tree/main/appfiles/three.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
-    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/tree/main/appfiles/sev.jpeg?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
+        <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/three.jpeg?raw=true" alt="NOTIFICATION 1" style="width: 40%; height: 40%;">
+    <img src="https://github.com/Sancetiano/KeralaAICameraTracker/blob/main/appfiles/settings.png?raw=true" alt="NOTIFICATION 2" style="width: 40%; height: 40%;">
 
 </div>
 </div>
