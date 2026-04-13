@@ -43,6 +43,16 @@ fun createGeofenceList(context: Context, cameraDataList: List<CameraData>): List
     cameraDataList.forEach { data ->
         val baseId = data.location.replace(" ", "*").lowercase(Locale.getDefault())
         
+        // Add a "core" geofence (50m) to mark as "reached" for pass notification logic
+        geofences.add(
+            Geofence.Builder()
+                .setRequestId("${baseId}_reached")
+                .setCircularRegion(data.latitude, data.longitude, 50f)
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .build()
+        )
+
         // Add geofences for each configured distance
         alertDistances.forEach { distance ->
             geofences.add(
@@ -345,4 +355,3 @@ fun getCurrentDate(context: Context) {
 
 //    return sdf.format(calendar.time)
 }
-

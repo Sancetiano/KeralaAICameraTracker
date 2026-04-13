@@ -46,6 +46,7 @@ import com.ramzmania.aicammvd.viewmodel.home.HomeViewModel
 import android.provider.Settings
 import androidx.compose.ui.text.font.FontFamily
 import androidx.core.content.res.ResourcesCompat
+import com.ramzmania.aicammvd.geofencing.speak
 
 /**
  * TrackerViewpagerItem: A composable function responsible for rendering an item within a ViewPager
@@ -196,10 +197,12 @@ fun TrackerViewpagerItem(title: String, subtitle: String,enabledLocationValue:Bo
                                         enableRememberLocation = true
                                         model.updateLocationButton(true)
                                         model.startLocationService(context,locationInfo.value)
+                                        speak(context, "live tracking enabled")
                                     } else {
                                         enableRememberLocation = false
                                         model.updateLocationButton(false)
                                         model.stopLocationService(context)
+                                        speak(context, "live tracking disabled")
 
 
                                     }

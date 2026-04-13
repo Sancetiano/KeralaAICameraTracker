@@ -12,6 +12,7 @@ object PreferencesUtil {
     private const val GEO_PENDING_INTENT = "pendingintent_geo"
     private const val PREF_LAST_PASSED_ID = "pref_last_passed_id"
     private const val PREF_LAST_PASSED_TIME = "pref_last_passed_time"
+    private const val PREF_CAMERA_REACHED_PREFIX = "reached_"
 
     /**
      * Retrieves the SharedPreferences instance.
@@ -113,5 +114,20 @@ object PreferencesUtil {
         val lastTime = getPreferences(context).getLong(PREF_LAST_PASSED_TIME, 0L)
         return lastId == baseId && (System.currentTimeMillis() - lastTime) < 60000 // 1 minute window
     }
-}
 
+    /**
+     * Marks a camera as reached (user was very close to it).
+     */
+    fun setCameraReached(context: Context, baseId: String, reached: Boolean) {
+        val editor = getPreferences(context).edit()
+        editor.putBoolean(PREF_CAMERA_REACHED_PREFIX + baseId, reached)
+        editor.apply()
+    }
+
+    /**
+     * Checks if a camera was reached recently.
+     */
+    fun isCameraReached(context: Context, baseId: String): Boolean {
+        return getPreferences(context).getBoolean(PREF_CAMERA_REACHED_PREFIX + baseId, false)
+    }
+}
