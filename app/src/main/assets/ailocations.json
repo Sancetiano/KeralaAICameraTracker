@@ -1,6 +1,8 @@
+// This file contains the locations of AI cameras and PVDS in Kerala. It is used by the app to display the locations on the map and to provide information about the cameras and PVDS.
+
 [
   {
-    "Unique_id": "KL-KEL-KMVD-50-AICS-01-1",
+    "Unique_id": "KL-KEL-KMVD-50-AICS-01-0",
     "District": "KOTTAYAM",
     "Location": "Prasannamkada",
     "Lat": 9.7554903,
@@ -3957,6 +3959,14 @@
     "Location": "KK Jn, Biyyam",
     "Lat": 10.786412,
     "Long": 75.951539,
+    "Type": "AI Camera"
+  },
+  {
+    "Unique_id": "KL-KEL-KMVD-50-AICS-10-506",
+    "District": "Malappuram",
+    "Location": "Konompara, Melmuri",
+    "Lat": 11.06404382,
+    "Long": 76.07821036,
     "Type": "AI Camera"
   },
   {
