@@ -46,7 +46,7 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
 2. **Camera Radar**: Once we've got our eyes on the road, we narrow down the next 20 cameras in your vicinity to ensure peak app performance.
 3. **Frequent Check-ins**: The app uses a dynamic scheduling logic. If you are within 2km of a camera, it checks every 5 seconds for high accuracy. As you move further away, the frequency scales up to 15 minutes to save battery.
 4. **Geo-Fencing Alert**: When your vehicle enters a configured radius of a camera, the app sends out a friendly voice or sound alert.
-5. **U-Turn Protection**: The "Passed Camera" notification only triggers if you actually graze the 100-meter core coordinates of the camera, preventing false alerts if you simply turn around before reaching it.
+5. **U-Turn Protection**: The "Passed Camera" notification only triggers if you actually graze the 50-meter core coordinates of the camera, preventing false alerts if you simply turn around before reaching it.
 6. **OSM to the Rescue**: The app uses OSMDroid to pinpoint camera locations, navigate with ease, and calculate distances accurately without relying on expensive proprietary map APIs.
 
 ## Security & Privacy
@@ -54,7 +54,7 @@ The Kerala AI Camera Tracker is a mobile application designed to help users trac
 - **Local Processing**: All location data and proximity calculations are processed **exclusively on your device**. Your coordinates are never uploaded to any server.
 - **No Data Harvesting**: The app does not require a user account, email, or any personal identification to function.
 - **Offline Camera Data**: The MVD AI camera location list is stored locally within the app assets.
-- **Permission Transparency**: The app requests background location access solely to provide alerts while your phone is in your pocket or the screen is off.
+- **Permission Transparency**: The app requests background location access solely to provide alerts when the app is running in the background, while your phone is in your pocket or the screen is off.
 
 ## Prerequisites
 
@@ -64,7 +64,7 @@ To build or contribute to this project, ensure your local environment meets the 
 - **Android Studio**: Android Studio Hedgehog | 2023.1.1 or newer is recommended. The latest version of Android Studio is optimal as it have agentic ai capabilities.
 - **Kotlin**: Version 1.9.22.
 - **Gradle**: The project uses Kotlin DSL for Gradle builds.
-- **KSP**: The project is migrated to KSP (Kotlin Symbol Processing) for faster build times and future-proofing.
+- **KSP**: The project is migrated from Kapt to KSP (Kotlin Symbol Processing) for faster build times and future-proofing.
 
 ## Build Warnings
 
